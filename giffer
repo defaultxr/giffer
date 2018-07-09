@@ -23,8 +23,8 @@ palette="/tmp/palette.png"
 
 fps=$(ffmpeg -i "$1" 2>&1 | sed -n "s/.*, \(.*\) fp.*/\1/p")
 
-# filters="fps=$fps,scale=320:-1:flags=lanczos" # uncomment this line and comment out the next one to force the output gif to a width of 320px.
-filters="fps=$fps"
+# filters="fps=$fps,scale=320:(320/(iw*sar))*ih:flags=lanczos" # uncomment this line and comment out the next one to force the output gif to a width of 320px.
+filters="fps=$fps,scale=iw*sar:ih:flags=lanczos"
 
 ffmpeg -v warning -ss $start_time -t $duration -i "$1" -vf "$filters,palettegen" -y $palette
 ffmpeg -v warning -ss $start_time -t $duration -i "$1" -i $palette -lavfi "$filters [x]; [x][1:v] paletteuse" -y "$2"
