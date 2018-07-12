@@ -10,7 +10,7 @@
 start_time=$3
 end_time=$4
 
-if [[ $start_time -eq no ]]; then
+if [[ "$start_time" == "no" || "$end_time" == "no" ]]; then
    echo "No start/end points defined; exiting..."
    exit 1
 fi
