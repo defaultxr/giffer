@@ -3,9 +3,9 @@
 # usage: input-file output-file start-time end-time
 
 # input-file is the input video
-# output-file is the name of the output file (should probably end with .gif if you want a gif file)
-# start-time is the start of the gif
-# end-time is the end of the gif
+# output-file is the name of the output file, or a directory in which to save the output file
+# start-time is the start of the clip
+# end-time is the end of the clip
 
 start_time=$3
 end_time=$4
@@ -19,12 +19,23 @@ duration=$(echo $end_time - $start_time | bc)
 
 duration=$(printf '%f' $duration)
 
-palette="/tmp/palette.png"
-
 fps=$(ffmpeg -i "$1" 2>&1 | sed -n "s/.*, \(.*\) fp.*/\1/p")
 
-# filters="fps=$fps,scale=320:(320/(iw*sar))*ih:flags=lanczos" # uncomment this line and comment out the next one to force the output gif to a width of 320px.
+# filters="fps=$fps,scale=320:(320/(iw*sar))*ih:flags=lanczos" # uncomment this line and comment out the next one to force a width of 320px.
 filters="fps=$fps,scale=iw*sar:ih:flags=lanczos"
 
-ffmpeg -v warning -ss $start_time -t $duration -i "$1" -vf "$filters,palettegen" -y $palette
-ffmpeg -v warning -ss $start_time -t $duration -i "$1" -i $palette -lavfi "$filters [x]; [x][1:v] paletteuse" -y "$2"
+input_filename=$(echo $1 | sed "s/.*\/\(.*\)\..*$/\1/")
+input_extension=$(echo $1 | sed "s/.*\.\(.*\)$/\1/")
+output_extension=$(echo $2 | sed "s/.*\.\(.*\)$/\1/")
+
+if [[ "$output_extension" == "gif" ]]; then
+    palette="/tmp/palette.png"
+    ffmpeg -v warning -ss $start_time -t $duration -i "$1" -vf "$filters,palettegen" -y $palette
+    ffmpeg -v warning -ss $start_time -t $duration -i "$1" -i $palette -lavfi "$filters [x]; [x][1:v] paletteuse" -y "$2"
+else
+    if [[ -d "$2" ]]; then # $2 is a directory
+        ffmpeg -v warning -ss $start_time -i "$1" -t $duration -vf "$filters" -y "$2/$input_filename $start_time.$input_extension"
+    else
+        ffmpeg -v warning -ss $start_time -i "$1" -t $duration -vf "$filters" -y "$2"
+    fi
+fi
