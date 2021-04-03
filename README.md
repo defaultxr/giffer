@@ -1,6 +1,8 @@
 # giffer
 Easily make gifs or videos from a/b loop points in MPV.
 
+**NOTE:** I no longer use nor develop this script; I recommend [mpv-webm](https://github.com/ekisu/mpv-webm) instead, as it is much more user-friendly and has many more features (including, despite its name, the option to export as GIF).
+
 This is a script to easily generate a gif or video file from the a/b loop points in MPV. I started from the code on http://blog.pkh.me/p/21-high-quality-gif-with-ffmpeg.html and modified it to work better with mpv, as well as have a few minor changes.
 
 Technically, MPV is optional since you can easily use the script by itself in the shell.
